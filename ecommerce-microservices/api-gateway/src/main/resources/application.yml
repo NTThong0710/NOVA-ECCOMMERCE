@@ -1,0 +1,224 @@
+server:
+  port: 8080
+
+internal:
+  gateway:
+    secret: MySuperSecretInternalKey123!
+
+spring:
+  application:
+    name: api-gateway
+  data:
+    redis:
+      host: charming-squid-97832.upstash.io
+      port: 6379
+      ssl:
+        enabled: true
+      password: gQAAAAAAAX4oAAIgcDFjNjgyZTNhY2JiMWM0ZWMyODMxOGZlNmZhMGRjZjNhNw
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:5173"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+          filters:
+            - RateLimitFilter
+        - id: user-service-secured
+          uri: lb://auth-service
+          predicates:
+            - Path=/user/**, /users/**
+          filters:
+            - JwtAuthenticationFilter
+
+        - id: product-service-public
+          uri: lb://product-service
+          predicates:
+            - Path=/products/**, /test/**
+            - Method=GET, OPTIONS
+          filters:
+            - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+
+        - id: product-service-secured
+          uri: lb://product-service
+          predicates:
+            - Path=/products/**
+            - Method=POST, PUT, DELETE, PATCH, OPTIONS
+          filters:
+            - JwtAuthenticationFilter
+            - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+
+        - id: cart-service
+          uri: lb://cart-service
+          predicates:
+            - Path=/cart/**
+          filters:
+            - JwtAuthenticationFilter
+            - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+
+
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**, /orders/**
+          filters:
+            - JwtAuthenticationFilter
+            - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+
+        - id: order-checkout-route
+          uri: lb://order-service
+          predicates:
+            - Path=/checkout/**, /checkout
+          filters:
+            - RewritePath=/checkout, /api/orders/checkout
+            - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+
+
+        # Payment callback/IPN routes — KHONG can JWT (VNPay goi ve, khong co Bearer token)
+        - id: payment-callback
+          uri: lb://order-service
+          predicates:
+            - Path=/api/payment/**
+          filters:
+            - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+
+        # Promotion - validate/apply (public, khong can JWT)
+        - id: promotion-public
+          uri: lb://promotion-service
+          predicates:
+            - Path=/api/promotions/validate, /api/promotions/apply
+          filters:
+            - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+
+        # Promotion - tat ca endpoints con lai can JWT (admin CRUD, my-coupons)
+        - id: promotion-service
+          uri: lb://promotion-service
+          predicates:
+            - Path=/api/promotions/**
+          filters:
+            - JwtAuthenticationFilter
+            - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+
+        # Notification Service
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - JwtAuthenticationFilter
+            - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+
+        # Shipping Service
+        - id: shipping-service
+          uri: lb://shipping-service
+          predicates:
+            - Path=/api/shipping/**
+          filters:
+            - JwtAuthenticationFilter
+            - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+
+        # Swagger OpenAPI Routes
+        - id: openapi-auth
+          uri: lb://auth-service
+          predicates:
+            - Path=/v3/api-docs/auth
+          filters:
+            - RewritePath=/v3/api-docs/auth, /v3/api-docs
+            - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+        - id: openapi-product
+          uri: lb://product-service
+          predicates:
+            - Path=/v3/api-docs/product
+          filters:
+            - RewritePath=/v3/api-docs/product, /v3/api-docs
+            - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+        - id: openapi-cart
+          uri: lb://cart-service
+          predicates:
+            - Path=/v3/api-docs/cart
+          filters:
+            - RewritePath=/v3/api-docs/cart, /v3/api-docs
+            - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+        - id: openapi-order
+          uri: lb://order-service
+          predicates:
+            - Path=/v3/api-docs/order
+          filters:
+            - RewritePath=/v3/api-docs/order, /v3/api-docs
+            - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+        - id: openapi-promotion
+          uri: lb://promotion-service
+          predicates:
+            - Path=/v3/api-docs/promotion
+          filters:
+            - RewritePath=/v3/api-docs/promotion, /v3/api-docs
+            - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+        - id: openapi-inventory
+          uri: lb://inventory-service
+          predicates:
+            - Path=/v3/api-docs/inventory
+          filters:
+            - RewritePath=/v3/api-docs/inventory, /v3/api-docs
+            - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+        - id: openapi-shipping
+          uri: lb://shipping-service
+          predicates:
+            - Path=/v3/api-docs/shipping
+          filters:
+            - RewritePath=/v3/api-docs/shipping, /v3/api-docs
+            - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+        - id: openapi-notification
+          uri: lb://notification-service
+          predicates:
+            - Path=/v3/api-docs/notification
+          filters:
+            - RewritePath=/v3/api-docs/notification, /v3/api-docs
+            - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Auth API
+        url: /v3/api-docs/auth
+      - name: Product API
+        url: /v3/api-docs/product
+      - name: Cart API
+        url: /v3/api-docs/cart
+      - name: Order API
+        url: /v3/api-docs/order
+      - name: Promotion API
+        url: /v3/api-docs/promotion
+      - name: Inventory API
+        url: /v3/api-docs/inventory
+      - name: Shipping API
+        url: /v3/api-docs/shipping
+      - name: Notification API
+        url: /v3/api-docs/notification
+
+jwt:
+  secret: ThuongChoNhungNguoiThichCodeTayNhuBanNhungKhoaNayPhaiDuDaiMoiAnToan123!@#
+
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0

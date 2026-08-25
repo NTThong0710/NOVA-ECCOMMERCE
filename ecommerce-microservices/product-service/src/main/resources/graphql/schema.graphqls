@@ -1,0 +1,17 @@
+type Query {
+    productById(id: ID!): Product
+    products(page: Int, limit: Int): [Product]
+}
+
+type Product {
+    id: ID!
+    title: String
+    sku: String
+    price: Float
+    discountPrice: Float
+    stockQuantity: Int
+    description: String
+    category: String
+    brand: String
+    status: String
+}

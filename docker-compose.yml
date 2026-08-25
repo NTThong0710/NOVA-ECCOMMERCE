@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. API GATEWAY (Entry Point)
+  # ==========================================
+  api-gateway:
+    build:
+      context: ./ecommerce-microservices/api-gateway
+      dockerfile: ../Dockerfile.backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - ecommerce-network
+
+  # ==========================================
+  # 2. MICROSERVICES
+  # ==========================================
+  auth-service:
+    build:
+      context: ./ecommerce-microservices/auth-service
+      dockerfile: ../Dockerfile.backend
+    ports:
+      - "8081:8081"
+    networks:
+      - ecommerce-network
+
+  product-service:
+    build:
+      context: ./ecommerce-microservices/product-service
+      dockerfile: ../Dockerfile.backend
+    ports:
+      - "8082:8082"
+    networks:
+      - ecommerce-network
+
+  cart-service:
+    build:
+      context: ./ecommerce-microservices/cart-service
+      dockerfile: ../Dockerfile.backend
+    ports:
+      - "8083:8083"
+    networks:
+      - ecommerce-network
+
+  order-service:
+    build:
+      context: ./ecommerce-microservices/order-service
+      dockerfile: ../Dockerfile.backend
+    ports:
+      - "8084:8084"
+    networks:
+      - ecommerce-network
+
+  promotion-service:
+    build:
+      context: ./ecommerce-microservices/promotion-service
+      dockerfile: ../Dockerfile.backend
+    ports:
+      - "8085:8085"
+    networks:
+      - ecommerce-network
+      
+  # ==========================================
+  # 3. FRONTEND (React + Vite)
+  # ==========================================
+  frontend:
+    build:
+      context: ./my-ecommerce-app
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    networks:
+      - ecommerce-network
+    depends_on:
+      - api-gateway
+
+networks:
+  ecommerce-network:
+    driver: bridge
