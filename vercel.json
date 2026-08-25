@@ -1,0 +1,11 @@
+{
+  "buildCommand": "cd my-ecommerce-app && npm install && npm run build",
+  "outputDirectory": "my-ecommerce-app/dist",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
