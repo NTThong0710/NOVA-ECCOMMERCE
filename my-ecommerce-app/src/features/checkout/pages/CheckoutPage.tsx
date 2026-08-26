@@ -6,8 +6,10 @@ import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { useTranslation } from 'react-i18next';
+import { API_BASE_URL } from '../../../core/api/apiConfig';
 
-const API_BASE = 'http://localhost:8080';
+const API_BASE = API_BASE_URL;
+
 
 const getHeaders = () => {
     const token = localStorage.getItem('accessToken') || localStorage.getItem('token');

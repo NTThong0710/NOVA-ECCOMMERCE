@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 internal:
   gateway:
@@ -20,31 +20,37 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-            allowedOrigins: "http://localhost:5173"
+            allowedOriginPatterns:
+              - "http://localhost:*"
+              - "https://*.vercel.app"
+              - "https://*.onrender.com"
+              - "*"
             allowedMethods:
               - GET
               - POST
               - PUT
               - DELETE
+              - PATCH
               - OPTIONS
             allowedHeaders: "*"
             allowCredentials: true
+
       routes:
         - id: auth-service
-          uri: lb://auth-service
+          uri: ${AUTH_SERVICE_URL:lb://auth-service}
           predicates:
             - Path=/auth/**
           filters:
             - RateLimitFilter
         - id: user-service-secured
-          uri: lb://auth-service
+          uri: ${AUTH_SERVICE_URL:lb://auth-service}
           predicates:
             - Path=/user/**, /users/**
           filters:
             - JwtAuthenticationFilter
 
         - id: product-service-public
-          uri: lb://product-service
+          uri: ${PRODUCT_SERVICE_URL:lb://product-service}
           predicates:
             - Path=/products/**, /test/**
             - Method=GET, OPTIONS
@@ -52,7 +58,7 @@ spring:
             - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
 
         - id: product-service-secured
-          uri: lb://product-service
+          uri: ${PRODUCT_SERVICE_URL:lb://product-service}
           predicates:
             - Path=/products/**
             - Method=POST, PUT, DELETE, PATCH, OPTIONS
@@ -61,16 +67,15 @@ spring:
             - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
 
         - id: cart-service
-          uri: lb://cart-service
+          uri: ${CART_SERVICE_URL:lb://cart-service}
           predicates:
             - Path=/cart/**
           filters:
             - JwtAuthenticationFilter
             - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
 
-
         - id: order-service
-          uri: lb://order-service
+          uri: ${ORDER_SERVICE_URL:lb://order-service}
           predicates:
             - Path=/api/orders/**, /orders/**
           filters:
@@ -78,17 +83,16 @@ spring:
             - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
 
         - id: order-checkout-route
-          uri: lb://order-service
+          uri: ${ORDER_SERVICE_URL:lb://order-service}
           predicates:
             - Path=/checkout/**, /checkout
           filters:
             - RewritePath=/checkout, /api/orders/checkout
             - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
 
-
         # Payment callback/IPN routes — KHONG can JWT (VNPay goi ve, khong co Bearer token)
         - id: payment-callback
-          uri: lb://order-service
+          uri: ${ORDER_SERVICE_URL:lb://order-service}
           predicates:
             - Path=/api/payment/**
           filters:
@@ -96,7 +100,7 @@ spring:
 
         # Promotion - validate/apply (public, khong can JWT)
         - id: promotion-public
-          uri: lb://promotion-service
+          uri: ${PROMOTION_SERVICE_URL:lb://promotion-service}
           predicates:
             - Path=/api/promotions/validate, /api/promotions/apply
           filters:
@@ -104,7 +108,7 @@ spring:
 
         # Promotion - tat ca endpoints con lai can JWT (admin CRUD, my-coupons)
         - id: promotion-service
-          uri: lb://promotion-service
+          uri: ${PROMOTION_SERVICE_URL:lb://promotion-service}
           predicates:
             - Path=/api/promotions/**
           filters:
@@ -113,7 +117,7 @@ spring:
 
         # Notification Service
         - id: notification-service
-          uri: lb://notification-service
+          uri: ${NOTIFICATION_SERVICE_URL:lb://notification-service}
           predicates:
             - Path=/api/notifications/**
           filters:
@@ -122,12 +126,13 @@ spring:
 
         # Shipping Service
         - id: shipping-service
-          uri: lb://shipping-service
+          uri: ${SHIPPING_SERVICE_URL:lb://shipping-service}
           predicates:
             - Path=/api/shipping/**
           filters:
             - JwtAuthenticationFilter
             - AddRequestHeader=X-Internal-Secret, ${internal.gateway.secret}
+
 
         # Swagger OpenAPI Routes
         - id: openapi-auth

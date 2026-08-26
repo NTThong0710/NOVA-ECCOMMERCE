@@ -1,5 +1,7 @@
 import React, { createContext, useMemo } from 'react';
 import { AxiosApiClient } from '../api/AxiosApiClient';
+import { API_BASE_URL } from '../api/apiConfig';
+
 import { ProductService } from '../../features/products/services/ProductService';
 import { AuthService } from '../../features/auth/services/AuthService';
 import { UserService } from '../../features/user/services/UserService';
@@ -24,7 +26,7 @@ export const ServiceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // useMemo giúp đảm bảo các object này chỉ được tạo ra 1 lần duy nhất khi web chạy
   const services = useMemo(() => {
     // Đây là nơi duy nhất chúng ta khởi tạo các Class!
-    const apiClient = new AxiosApiClient('http://localhost:8080');
+    const apiClient = new AxiosApiClient(API_BASE_URL);
     const productService = new ProductService(apiClient);
     const authService = new AuthService(apiClient);
     const userService = new UserService(apiClient);

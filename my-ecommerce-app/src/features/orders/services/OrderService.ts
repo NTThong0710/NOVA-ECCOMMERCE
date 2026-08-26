@@ -1,5 +1,6 @@
 
 import axios from 'axios';
+import { API_BASE_URL } from '../../../core/api/apiConfig';
 
 export interface OrderItem {
   id: number
@@ -20,7 +21,8 @@ export interface Order {
   payment?: { paymentMethod: string; status: string; transactionId: string }
 }
 
-const API_URL = 'http://localhost:8080/api/orders';
+const API_URL = `${API_BASE_URL}/api/orders`;
+
 
 const getHeaders = () => {
     const token = localStorage.getItem('token') || localStorage.getItem('accessToken');

@@ -1,8 +1,10 @@
 
 import axios from 'axios';
+import { API_BASE_URL } from '../../../core/api/apiConfig';
 
-const API_URL = 'http://localhost:8080/api/products';
-const ADMIN_API_URL = 'http://localhost:8080/api/admin/products';
+const API_URL = `${API_BASE_URL}/products`;
+const ADMIN_API_URL = `${API_BASE_URL}/products/admin`;
+
 
 const getHeaders = () => {
     const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
