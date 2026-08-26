@@ -2,18 +2,32 @@ version: '3.8'
 
 services:
   # ==========================================
+  # 0. DISCOVERY SERVER (Eureka)
+  # ==========================================
+  discovery-server:
+    build:
+      context: ./ecommerce-microservices/discovery-server
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    networks:
+      - ecommerce-network
+
+  # ==========================================
   # 1. API GATEWAY (Entry Point)
   # ==========================================
   api-gateway:
     build:
       context: ./ecommerce-microservices/api-gateway
-      dockerfile: ../Dockerfile.backend
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     networks:
       - ecommerce-network
+    depends_on:
+      - discovery-server
 
   # ==========================================
   # 2. MICROSERVICES
@@ -21,48 +35,91 @@ services:
   auth-service:
     build:
       context: ./ecommerce-microservices/auth-service
-      dockerfile: ../Dockerfile.backend
+      dockerfile: Dockerfile
     ports:
       - "8081:8081"
     networks:
       - ecommerce-network
+    depends_on:
+      - discovery-server
 
   product-service:
     build:
       context: ./ecommerce-microservices/product-service
-      dockerfile: ../Dockerfile.backend
+      dockerfile: Dockerfile
     ports:
       - "8082:8082"
     networks:
       - ecommerce-network
+    depends_on:
+      - discovery-server
 
   cart-service:
     build:
       context: ./ecommerce-microservices/cart-service
-      dockerfile: ../Dockerfile.backend
+      dockerfile: Dockerfile
     ports:
       - "8083:8083"
     networks:
       - ecommerce-network
+    depends_on:
+      - discovery-server
 
   order-service:
     build:
       context: ./ecommerce-microservices/order-service
-      dockerfile: ../Dockerfile.backend
+      dockerfile: Dockerfile
     ports:
       - "8084:8084"
     networks:
       - ecommerce-network
+    depends_on:
+      - discovery-server
 
   promotion-service:
     build:
       context: ./ecommerce-microservices/promotion-service
-      dockerfile: ../Dockerfile.backend
+      dockerfile: Dockerfile
     ports:
       - "8085:8085"
     networks:
       - ecommerce-network
-      
+    depends_on:
+      - discovery-server
+
+  inventory-service:
+    build:
+      context: ./ecommerce-microservices/inventory-service
+      dockerfile: Dockerfile
+    ports:
+      - "8086:8086"
+    networks:
+      - ecommerce-network
+    depends_on:
+      - discovery-server
+
+  shipping-service:
+    build:
+      context: ./ecommerce-microservices/shipping-service
+      dockerfile: Dockerfile
+    ports:
+      - "8087:8087"
+    networks:
+      - ecommerce-network
+    depends_on:
+      - discovery-server
+
+  notification-service:
+    build:
+      context: ./ecommerce-microservices/notification-service
+      dockerfile: Dockerfile
+    ports:
+      - "8088:8088"
+    networks:
+      - ecommerce-network
+    depends_on:
+      - discovery-server
+
   # ==========================================
   # 3. FRONTEND (React + Vite)
   # ==========================================
@@ -80,3 +137,4 @@ services:
 networks:
   ecommerce-network:
     driver: bridge
+
