@@ -1,10 +1,10 @@
 FROM maven:3.9.5-eclipse-temurin-21 AS builder
 WORKDIR /build
 
-COPY ecommerce-backend/pom.xml .
+COPY pom.xml .
 RUN mvn dependency:go-offline -B || true
 
-COPY ecommerce-backend/src ./src
+COPY src ./src
 RUN mvn clean package -DskipTests -B
 
 FROM eclipse-temurin:21-jre-alpine
