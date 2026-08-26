@@ -187,5 +187,18 @@
     "last_active": "Hoạt động gần nhất",
     "logout_device": "Đăng xuất thiết bị này",
     "update_success": "Cập nhật thông tin thành công!"
+  },
+  "wishlist": {
+    "title": "Danh Sách Yêu Thích",
+    "item_count": "Bạn có {{count}} sản phẩm trong danh sách yêu thích.",
+    "empty_title": "Danh sách yêu thích trống",
+    "empty_desc": "Chưa có sản phẩm nào được lưu.",
+    "empty_suggestion": "Hãy bấm vào biểu tượng trái tim trên các sản phẩm bạn ưng ý để lưu lại và mua sắm sau!",
+    "explore": "Khám phá sản phẩm ngay",
+    "clear_all": "Xóa tất cả",
+    "add_all_cart": "Thêm tất cả vào giỏ",
+    "added_toast": "Đã thêm vào danh sách yêu thích!",
+    "removed_toast": "Đã xóa khỏi danh sách yêu thích",
+    "all_added_cart_toast": "Đã thêm tất cả sản phẩm vào giỏ hàng!"
   }
 }

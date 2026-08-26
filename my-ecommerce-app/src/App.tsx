@@ -19,6 +19,7 @@ import CartPage from './features/cart/pages/CartPage';
 import CheckoutPage from './features/checkout/pages/CheckoutPage';
 import ProductListPage from './features/products/pages/ProductListPage';
 import ProductDetailPage from './features/products/pages/ProductDetailPage';
+import WishlistPage from './features/wishlist/pages/WishlistPage';
 import PaymentResultPage from './features/payment/pages/PaymentResultPage';
 import { useInitAuth } from './hook/useInitAuth';
 import AdminUsersPage from './features/admin/pages/AdminUsersPage';
@@ -40,6 +41,7 @@ function App() {
           <Route path="/home" element={<HomePage />} />
           <Route path="/products" element={<ProductListPage />} />
           <Route path="/product/:id" element={<ProductDetailPage />} />
+          <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/orders" element={<ProtectedRoute><OrderHistoryPage /></ProtectedRoute>} />
@@ -49,6 +51,7 @@ function App() {
             </ProtectedRoute>
           } />
         </Route>
+
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />

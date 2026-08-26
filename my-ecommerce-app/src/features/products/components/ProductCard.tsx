@@ -5,6 +5,9 @@ import { useCartStore } from '../../cart/store/cartStore';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { useTranslation } from 'react-i18next';
 
+import { useWishlistStore } from '../../wishlist/store/wishlistStore';
+import { toast } from 'react-hot-toast';
+
 export const StarDisplay = ({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' }) => {
   const stars = Math.round(rating);
   const sizeClass = size === 'md' ? 'text-lg' : 'text-xs';
@@ -25,9 +28,11 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   const { t, i18n } = useTranslation();
   const addToCart = useCartStore(state => state.addToCart);
+  const { isInWishlist, toggleWishlist } = useWishlistStore();
+  const isLiked = isInWishlist(product.id);
+
   const [isAdding, setIsAdding] = useState(false);
   const [showCheck, setShowCheck] = useState(false);
-
 
   const hasDiscount = product.discountPrice && product.discountPrice < product.price;
   const isOutOfStock = product.stockQuantity === 0;
@@ -41,6 +46,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
     if (onAddToCart) onAddToCart(product);
     setTimeout(() => { setIsAdding(false); setShowCheck(true); }, 400);
     setTimeout(() => setShowCheck(false), 2000);
+  };
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const added = toggleWishlist(product);
+    if (added) {
+      toast.success(t('wishlist.added_toast', 'Đã thêm vào yêu thích!'), {
+        icon: '❤️',
+        style: { borderRadius: '12px', background: '#1e293b', color: '#f8fafc' },
+      });
+    } else {
+      toast(t('wishlist.removed_toast', 'Đã xóa khỏi yêu thích'), {
+        icon: '💔',
+        style: { borderRadius: '12px', background: '#1e293b', color: '#f8fafc' },
+      });
+    }
   };
 
   return (
@@ -71,13 +93,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
           )}
         </div>
 
-        {/* Wishlist Button (Hover) */}
+        {/* Wishlist Button */}
         <button
-          className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 shadow-sm"
-          onClick={e => e.preventDefault()} // Not implemented yet
+          aria-label="Wishlist"
+          className={`absolute top-3 right-3 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-sm ${
+            isLiked 
+              ? 'bg-white text-rose-500 opacity-100 shadow-md' 
+              : 'bg-white/90 backdrop-blur-md text-slate-700 opacity-0 group-hover:opacity-100 hover:text-rose-500'
+          }`}
+          onClick={handleToggleWishlist}
         >
-          <i className="pi pi-heart text-sm text-slate-900"></i>
+          <i className={`pi ${isLiked ? 'pi-heart-fill text-rose-500' : 'pi-heart'} text-sm`}></i>
         </button>
+
 
         {/* Quick Add Button (Hover) */}
         <div className="absolute bottom-0 left-0 w-full p-4 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out z-10">

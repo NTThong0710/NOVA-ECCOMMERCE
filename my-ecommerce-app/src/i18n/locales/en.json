@@ -187,5 +187,18 @@
     "last_active": "Last Active",
     "logout_device": "Revoke Session",
     "update_success": "Profile updated successfully!"
+  },
+  "wishlist": {
+    "title": "Wishlist",
+    "item_count": "You have {{count}} item(s) in your wishlist.",
+    "empty_title": "Your Wishlist is Empty",
+    "empty_desc": "No saved items yet.",
+    "empty_suggestion": "Click on the heart icon on any product you love to save it for later!",
+    "explore": "Explore Products",
+    "clear_all": "Clear Wishlist",
+    "add_all_cart": "Add All to Cart",
+    "added_toast": "Added to wishlist!",
+    "removed_toast": "Removed from wishlist",
+    "all_added_cart_toast": "All items added to cart!"
   }
 }

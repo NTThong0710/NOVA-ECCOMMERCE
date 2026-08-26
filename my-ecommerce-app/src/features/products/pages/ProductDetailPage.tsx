@@ -9,7 +9,9 @@ import { formatCurrency } from '../../../utils/formatCurrency';
 import { useTranslation } from 'react-i18next';
 import { StarDisplay } from '../components/ProductCard';
 import ProductCard from '../components/ProductCard';
+import { useWishlistStore } from '../../wishlist/store/wishlistStore';
 import toast from 'react-hot-toast';
+
 
 // ──────────────────────────────────────────────────────
 // Sub-components
@@ -297,7 +299,7 @@ const ProductDetailPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { productService } = useServices();
   const addToCart = useCartStore(state => state.addToCart);
-
+  const { isInWishlist, toggleWishlist } = useWishlistStore();
 
   const [quantity, setQuantity] = useState(1);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
@@ -308,6 +310,24 @@ const ProductDetailPage: React.FC = () => {
     queryFn: () => productService.getProductById(id!),
     enabled: !!id,
   });
+
+  const isLiked = product ? isInWishlist(product.id) : false;
+
+  const handleToggleWishlist = () => {
+    if (!product) return;
+    const added = toggleWishlist(product);
+    if (added) {
+      toast.success(t('wishlist.added_toast', 'Đã thêm vào danh sách yêu thích!'), {
+        icon: '❤️',
+        style: { borderRadius: '12px', background: '#1e293b', color: '#f8fafc' },
+      });
+    } else {
+      toast(t('wishlist.removed_toast', 'Đã xóa khỏi danh sách yêu thích'), {
+        icon: '💔',
+        style: { borderRadius: '12px', background: '#1e293b', color: '#f8fafc' },
+      });
+    }
+  };
 
   const { data: relatedProducts = [] } = useQuery<Product[]>({
     queryKey: ['related-products', id],
@@ -337,6 +357,7 @@ const ProductDetailPage: React.FC = () => {
     addToCart({ ...product, selectedVariants, quantity } as any);
     navigate('/cart');
   };
+
 
   // ──── Loading skeleton ────
   if (isLoading) return (
@@ -506,7 +527,19 @@ const ProductDetailPage: React.FC = () => {
               >
                 {t('product.buy_now', 'Mua ngay')}
               </button>
+              <button
+                onClick={handleToggleWishlist}
+                aria-label="Wishlist"
+                className={`w-14 py-4 border flex items-center justify-center transition-colors ${
+                  isLiked
+                    ? 'border-rose-500 bg-rose-50 dark:bg-rose-950/30 text-rose-500 shadow-sm'
+                    : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-rose-500 hover:border-rose-300'
+                }`}
+              >
+                <i className={`pi ${isLiked ? 'pi-heart-fill text-rose-500' : 'pi-heart'} text-xl`}></i>
+              </button>
             </div>
+
 
 
             {/* Shipping + Policy info */}

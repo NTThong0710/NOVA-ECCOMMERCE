@@ -3,6 +3,7 @@ import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Menu } from 'primereact/menu';
 import { useCartStore } from '../features/cart/store/cartStore';
+import { useWishlistStore } from '../features/wishlist/store/wishlistStore';
 import { useAuthStore } from '../features/auth/store/authStore';
 import { useCurrencyStore } from '../core/store/currencyStore';
 import { ThemeToggle } from '../components/ThemeToggle';
@@ -14,13 +15,15 @@ const MainLayout: React.FC = () => {
   
   const { currency, setCurrency } = useCurrencyStore();
 
-  // Cắm dây lấy dữ liệu Giỏ hàng
+  // Cắm dây lấy dữ liệu Giỏ hàng & Wishlist
   const items = useCartStore((state) => state.items);
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+  const wishlistCount = useWishlistStore((state) => state.items.length);
 
   // Mở Két sắt lấy dữ liệu Đăng nhập
   const { username, profile, logout } = useAuthStore();
   const isAdmin = profile?.role === 'ADMIN';
+
 
   const handleLogout = () => {
     logout();
@@ -45,6 +48,11 @@ const MainLayout: React.FC = () => {
       command: () => navigate('/profile')
     },
     {
+      label: t('nav.wishlist', 'Danh sách yêu thích'),
+      icon: 'pi pi-heart',
+      command: () => navigate('/wishlist')
+    },
+    {
       label: t('nav.orders', 'Đơn hàng của tôi'),
       icon: 'pi pi-shopping-bag',
       command: () => navigate('/orders')
@@ -55,6 +63,7 @@ const MainLayout: React.FC = () => {
     {
       label: t('nav.logout', 'Đăng xuất'),
       icon: 'pi pi-sign-out',
+
       className: 'text-red-500',
       command: handleLogout
     }
@@ -120,6 +129,20 @@ const MainLayout: React.FC = () => {
 
           <ThemeToggle />
 
+          {/* Wishlist Icon */}
+          <Link 
+            to="/wishlist" 
+            title={t('wishlist.title', 'Danh sách yêu thích')}
+            className="relative p-2 text-slate-700 dark:text-slate-200 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+          >
+            <i className="pi pi-heart text-xl"></i>
+            {wishlistCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center ring-2 ring-white dark:ring-slate-900 shadow-sm">
+                {wishlistCount}
+              </span>
+            )}
+          </Link>
+
           {/* Cart Icon */}
           <Link to="/cart" className="relative p-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
             <i className="pi pi-shopping-bag text-xl"></i>
@@ -129,6 +152,7 @@ const MainLayout: React.FC = () => {
               </span>
             )}
           </Link>
+
 
           {/* --- AUTHENTICATION --- */}
           {username ? (
