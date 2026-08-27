@@ -1,41 +1,38 @@
 package com.ecommerce.product.infrastructure.elasticsearch.document;
 
-import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
-
 import java.util.List;
 
-@Data
-@Document(indexName = "products")
+/**
+ * ProductDocument - stub (Elasticsearch disabled for Render free tier).
+ * Search functionality uses JPA queries instead.
+ */
 public class ProductDocument {
-
-    @Id
-    private String id; // ES IDs are usually Strings, we will use the PostgreSQL ID
-
-    @Field(type = FieldType.Text, analyzer = "standard")
+    private String id;
     private String title;
-
-    @Field(type = FieldType.Keyword)
     private String sku;
-
-    @Field(type = FieldType.Double)
     private Double price;
-
-    @Field(type = FieldType.Text)
     private String description;
-
-    @Field(type = FieldType.Keyword)
     private String category;
-
-    @Field(type = FieldType.Keyword)
     private String brand;
-
-    @Field(type = FieldType.Keyword)
     private List<String> tags;
-
-    @Field(type = FieldType.Keyword)
     private String status;
+
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public String getSku() { return sku; }
+    public void setSku(String sku) { this.sku = sku; }
+    public Double getPrice() { return price; }
+    public void setPrice(Double price) { this.price = price; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+    public String getBrand() { return brand; }
+    public void setBrand(String brand) { this.brand = brand; }
+    public List<String> getTags() { return tags; }
+    public void setTags(List<String> tags) { this.tags = tags; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }

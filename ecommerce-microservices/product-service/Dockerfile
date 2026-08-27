@@ -1,21 +1,19 @@
-# Stage 1: Build the application using Maven
 FROM maven:3.9.5-eclipse-temurin-21 AS builder
 WORKDIR /build
 
-# Copy pom.xml and download dependencies
 COPY pom.xml .
 RUN mvn dependency:go-offline -B || true
 
-# Copy source code and build package
 COPY src ./src
 RUN mvn clean package -DskipTests -B
 
-# Stage 2: Create minimal runtime image
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Copy built jar
-COPY --from=builder /build/target/*.jar app.jar
+# RAM optimization for Render free tier (512MB)
+ENV JAVA_OPTS="-XX:+UseSerialGC -XX:MaxRAM=400m -Xms64m -Xmx300m -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m"
 
-# Run with optimized memory for Cloud Free Tier
-ENTRYPOINT ["java", "-XX:+UseSerialGC", "-Xms64m", "-Xmx256m", "-jar", "app.jar"]
+COPY --from=builder /build/target/*.jar app.jar
+EXPOSE 8082
+
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

@@ -1,22 +1,17 @@
 package com.ecommerce.product.infrastructure.messaging;
 
 import com.ecommerce.product.event.ProductCreatedEvent;
-import com.ecommerce.product.infrastructure.config.RabbitMQConfig;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+/**
+ * ProductEventPublisher - stub version (messaging disabled for Render free tier).
+ * Events are logged only, no RabbitMQ connection required.
+ */
 @Service
 public class ProductEventPublisher {
 
-    private final RabbitTemplate rabbitTemplate;
-
-    public ProductEventPublisher(RabbitTemplate rabbitTemplate) {
-        this.rabbitTemplate = rabbitTemplate;
-    }
-
     public void publishProductCreatedEvent(Long productId, String sku) {
-        ProductCreatedEvent event = new ProductCreatedEvent(productId, sku);
-        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, "product.created", event);
-        System.out.println("Published ProductCreatedEvent for SKU: " + sku);
+        // Messaging disabled - just log event
+        System.out.println("[EVENT] ProductCreated: id=" + productId + ", sku=" + sku);
     }
 }
