@@ -1,12 +1,9 @@
 package com.ecommerce.cart.infrastructure.client;
 
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-
-@FeignClient(name = "auth-service", path = "/auth")
+/**
+ * AuthClient - không còn dùng FeignClient trong monolith.
+ * Auth được xử lý qua header X-Auth-User từ Gateway.
+ */
 public interface AuthClient {
-    
-    @GetMapping("/me")
-    UserDto getMe(@RequestHeader("Authorization") String token);
+    UserDto getMe(String token);
 }

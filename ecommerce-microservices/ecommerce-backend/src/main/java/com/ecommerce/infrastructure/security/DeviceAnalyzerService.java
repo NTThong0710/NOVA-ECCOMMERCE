@@ -2,51 +2,53 @@ package com.ecommerce.auth.infrastructure.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
-import ua_parser.Client;
-import ua_parser.Parser;
 
+/**
+ * DeviceAnalyzerService - phân tích thiết bị từ User-Agent header.
+ * Sử dụng string parsing đơn giản thay vì ua_parser library.
+ */
 @Service
 public class DeviceAnalyzerService {
-    
-    private final Parser uaParser;
 
-    public DeviceAnalyzerService() {
-        try {
-            this.uaParser = new Parser();
-        } catch (Exception e) {
-            throw new RuntimeException("Lỗi khởi tạo User-Agent Parser", e);
-        }
-    }
+    public DeviceAnalyzerService() {}
 
-    // Trích xuất Tên thiết bị (Hệ điều hành + Trình duyệt)
     public String extractDeviceName(HttpServletRequest request) {
-        String userAgentString = request.getHeader("User-Agent");
-        if (userAgentString == null || userAgentString.isEmpty()) {
-            return "Unknown Device";
-        }
-        
-        Client client = uaParser.parse(userAgentString);
-        String os = client.os.family;
-        String browser = client.userAgent.family;
-        
-        return browser + " trên " + os; // VD: "Chrome trên Windows"
+        String ua = request.getHeader("User-Agent");
+        if (ua == null || ua.isEmpty()) return "Unknown Device";
+
+        String browser = "Browser";
+        String os = "Unknown OS";
+
+        if (ua.contains("Chrome") && !ua.contains("Edg")) browser = "Chrome";
+        else if (ua.contains("Firefox")) browser = "Firefox";
+        else if (ua.contains("Safari") && !ua.contains("Chrome")) browser = "Safari";
+        else if (ua.contains("Edg")) browser = "Edge";
+
+        if (ua.contains("Windows")) os = "Windows";
+        else if (ua.contains("Mac OS")) os = "macOS";
+        else if (ua.contains("Linux")) os = "Linux";
+        else if (ua.contains("Android")) os = "Android";
+        else if (ua.contains("iPhone") || ua.contains("iPad")) os = "iOS";
+
+        return browser + " trên " + os;
     }
 
-    // Trích xuất IP thực
     public String extractIpAddress(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
         if (ip == null || ip.isEmpty()) {
             ip = request.getRemoteAddr();
         }
+        // X-Forwarded-For có thể chứa nhiều IP, lấy IP đầu tiên
+        if (ip != null && ip.contains(",")) {
+            ip = ip.split(",")[0].trim();
+        }
         return ip;
     }
 
-    // Tạo ra ID Thiết bị dựa trên IP và đặc điểm máy (Tránh việc Hacker tự gửi deviceId giả)
     public String extractDeviceId(HttpServletRequest request) {
         String ip = extractIpAddress(request);
         String deviceName = extractDeviceName(request);
-        
-        // Gộp IP và Device Name lại thành một chuỗi Hash làm ID duy nhất
-        return java.util.Base64.getEncoder().encodeToString((ip + "|" + deviceName).getBytes());
+        return java.util.Base64.getEncoder()
+                .encodeToString((ip + "|" + deviceName).getBytes());
     }
 }
